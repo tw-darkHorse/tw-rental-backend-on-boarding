@@ -1,0 +1,48 @@
+def excludeClasses = [
+        '**/presentation/dto/*',
+        '**/presentation/assembler/*',
+        '**/presentation/*Controller*',
+        '**/presentation/GlobalExceptionHandler.class',
+        '**/infrastructure/assembler/*',
+        '**/infrastructure/dataentiry/*',
+        '**/infrastructure/persistence/*',
+        '**/infrastructure/configuration/*',
+        '**/domain/repository/*',
+        '**/domain/model/enums/*',
+        '**/domain/model/enums/*',
+        '**/*Exception.class',
+        '**/CollaborationServiceApplication.class',
+]
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.5
+            }
+        }
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: excludeClasses)
+        }))
+    }
+}
+
+jacocoTestReport {
+    reports {
+        csv.enabled false
+        xml.enabled false
+        html.enabled true
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: excludeClasses)
+        }))
+    }
+}
+
+jacocoTestCoverageVerification.dependsOn jacocoTestReport
+check.dependsOn jacocoTestCoverageVerification

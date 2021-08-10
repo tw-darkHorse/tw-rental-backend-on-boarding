@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# set this to your active development branch
+develop_branch="master"
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
+
+# only check commit messages on main development branch
+[ "$current_branch" != "$develop_branch" ] && exit 0
+
+# regex to validate in commit msg
+commit_regex="(feat|fix|refactor|tech|style|test|chore|docs|revert)(\(#KS\d+\-\d+\))?: .+"
+
+error_msg="Aborting commit.
+Following format like: 'tech(#KS1-001): your message'
+or 'tech: your message', prefix lists:
+feat: a new feature
+fix: a bug fix
+refactor: a code change that neither fixes a bug or adds a feature
+docs: documentation only changes
+style: code style, changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+test: adding missing tests
+chore: changes that don't modify src or test files. Such as updating build tasks, package manager
+tech: technical story
+revert: revert to a commit"
+
+if ! grep -iqE "$commit_regex" "$1"; then
+    echo "$error_msg" >&2
+    exit 1
+fi
