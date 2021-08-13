@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import rental.application.HouseApplicationService;
 import rental.domain.model.House;
+import rental.presentation.exception.NotFoundException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -45,7 +46,38 @@ public class HouseControllerTest {
 
         // when
         mvc.perform(get("/houses").accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)))
-            .andExpect(jsonPath("$.totalElements").value(2));
+                .andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.totalElements").value(2));
+    }
+
+    @Test
+    public void should_get_house_info_given_valid_house_id() throws Exception {
+        //given
+        House house = House.builder().id(1L).name("house-1").build();
+        when(applicationService.findHouseById(1L)).thenReturn(house);
+
+        //when
+        //then
+        mvc.perform(get("/houses/" + house.getId()).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(house.getName()));
+    }
+
+    @Test
+    public void should_get_error_message_when_find_house_given_invalid_house_id() throws Exception {
+        //given
+        House house = House.builder().id(1L).name("house-1").build();
+        long wrongId = house.getId() + 111L;
+        when(applicationService.findHouseById(wrongId)).thenThrow(
+                new NotFoundException("NOT_FOUND", "can't find house with house id " + wrongId));
+
+        //when
+        //then
+        mvc.perform(get("/houses/" + wrongId).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value("404"))
+                .andExpect(jsonPath("$.code").value("NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("can't find house with house id " + wrongId));
+
     }
 }

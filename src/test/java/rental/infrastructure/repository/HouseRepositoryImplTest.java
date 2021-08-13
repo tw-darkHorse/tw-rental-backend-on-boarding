@@ -15,7 +15,11 @@ import rental.domain.model.House;
 import rental.infrastructure.dataentity.HouseEntity;
 import rental.infrastructure.persistence.HouseJpaPersistence;
 
+import java.util.Optional;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -77,5 +81,34 @@ public class HouseRepositoryImplTest {
         // then
         assertEquals(0, result.getTotalElements());
         assertEquals(0, result.getContent().size());
+    }
+
+    @Test
+    public void should_get_house_info_when_id_exist() {
+        //given
+        HouseEntity houseEntity = HouseEntity.builder().name("house-1").build();
+        entityManager.persistAndFlush(houseEntity);
+        Long id = houseEntity.getId();
+
+        //when
+        Optional<House> actualHouse = this.repository.findById(id);
+
+        //then
+        assertTrue(actualHouse.isPresent());
+        assertEquals("house-1", actualHouse.get().getName());
+    }
+
+    @Test
+    public void should_return_empty_option_given_house_id_not_exist() {
+        //given
+        HouseEntity houseEntity = HouseEntity.builder().name("house-1").build();
+        entityManager.persistAndFlush(houseEntity);
+        Long id = houseEntity.getId();
+
+        //when
+        Optional<House> actualHouse = this.repository.findById(id + 101010);
+
+        //then
+        assertFalse(actualHouse.isPresent());
     }
 }

@@ -10,6 +10,8 @@ import rental.domain.repository.HouseRepository;
 import rental.infrastructure.mapper.EntityToModelMapper;
 import rental.infrastructure.persistence.HouseJpaPersistence;
 
+import java.util.Optional;
+
 @Component
 @Slf4j
 @AllArgsConstructor
@@ -19,5 +21,10 @@ public class HouseRepositoryImpl implements HouseRepository {
     @Override
     public Page<House> queryAllHouses(Pageable pageable) {
         return this.persistence.findAll(pageable).map(EntityToModelMapper.INSTANCE::mapToModel);
+    }
+
+    @Override
+    public Optional<House> findById(Long id) {
+        return this.persistence.findById(id).map(EntityToModelMapper.INSTANCE::mapToModel);
     }
 }
