@@ -18,5 +18,7 @@ spring:
 
 application:
   services:
-    house-management: 127.0.0.1:8089
+    house-management:
+      name: HouseManagementServiceClient
+      url: localhost:8089
 

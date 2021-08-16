@@ -20,3 +20,9 @@ spring:
     cloud-platform: kubernetes
   lifecycle:
     timeout-per-shutdown-phase: 5s
+
+application:
+  services:
+    house-management:
+      name: HouseManagementServiceClient
+      url: localhost:8089

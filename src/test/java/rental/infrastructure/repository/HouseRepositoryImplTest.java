@@ -19,7 +19,10 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -110,5 +113,35 @@ public class HouseRepositoryImplTest {
 
         //then
         assertFalse(actualHouse.isPresent());
+    }
+
+    @Test
+    public void should_save_house_entity_to_db_and_return_house() {
+        //given
+        String houseName = "house-1";
+        House inputHouse = House.builder().name(houseName).build();
+
+        //when
+        House outputHouse = this.repository.save(inputHouse);
+
+        //then
+        assertNotNull(outputHouse.getId());
+        assertEquals(inputHouse.getName(), outputHouse.getName());
+        HouseEntity houseEntity = entityManager.getEntityManager().find(HouseEntity.class, outputHouse.getId());
+        assertEquals(inputHouse.getName(), houseEntity.getName());
+    }
+
+    @Test
+    public void should_delete_house_given_valid_id() {
+        //given
+        HouseEntity houseEntity = HouseEntity.builder().name("house-1").build();
+        entityManager.persist(houseEntity);
+        Long id = houseEntity.getId();
+
+        //when
+        this.repository.deleteById(id);
+
+        //then
+        assertNull(entityManager.getEntityManager().find(HouseEntity.class, id));
     }
 }
